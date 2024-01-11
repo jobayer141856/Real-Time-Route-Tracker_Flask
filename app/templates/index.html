@@ -1,0 +1,54 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Route Visualization</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+</head>
+
+<body class="bg-gray-200 p-4">
+    <div class="container mx-auto">
+        <!-- Forward route visualization -->
+        <div id="forward-route" class="mb-4">
+            <!-- Display forward route here -->
+        </div>
+        
+        <!-- Backward route visualization -->
+        <div id="backward-route">
+            <!-- Display backward route here -->
+        </div>
+
+        <!-- Real-time data display -->
+        <div id="real-time-data">
+            <p>Time to arrival: <span id="time-to-arrival">Calculating...</span></p>
+            <p>Speed: <span id="current-speed">Calculating...</span></p>
+            <p>Next stoppage distance: <span id="next-stop-distance">Calculating...</span></p>
+        </div>
+    </div>
+    <!-- Add this in your HTML file, just before </body> -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Fetch real-time data from the server
+    function fetchRealTimeData() {
+        $.ajax({
+            url: '/get-real-time-data',
+            method: 'GET',
+            success: function(data) {
+                $('#time-to-arrival').text(data.timeToArrival);
+                $('#current-speed').text(data.speed);
+                $('#next-stop-distance').text(data.nextStopDistance);
+            }
+        });
+    }
+
+    // Fetch data every 5 seconds
+    setInterval(fetchRealTimeData, 5000);
+</script>
+
+</body>
+</html>
