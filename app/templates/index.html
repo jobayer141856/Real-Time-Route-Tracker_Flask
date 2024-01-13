@@ -7,31 +7,96 @@
     <!-- Add Leaflet CSS and JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-
 </head>
-
 <body class="bg-gray-200 p-4">
-    <div class="container mx-auto">
-        <!-- Forward route visualization -->
-        <div id="forward-route" class="mb-4">
-            <!-- Display forward route here -->
-        </div>
-        
-        <!-- Backward route visualization -->
-        <div id="backward-route">
-            <!-- Display backward route here -->
-        </div>
+    <h1 class="text-2xl font-bold mb-4 text-center">Route Visualization</h1>
+    <!-- <div class="item-center">
+    from: <input type="text" id="from" class="border border-gray-400 p-2 mr-4">
+    to: <input type="text" id="to" class="border border-gray-400 p-2 mr-4">
+    <button id="submit" class="border border-gray-400 p-2">Submit</button>
+    </div> -->
+    <div id="distance"></div>
+    <div id="duration"></div>
+    <div id="map" class="w-full h-96 mt-12 mb-12"></div>
+    <!-- <form action="/calculate" method="post">
+        <label for="origin">Origin:</label>
+        <input type="text" id="origin" name="origin" required><br><br>
 
-        <!-- Real-time data display -->
-        <div id="real-time-data">
-            <p>Time to arrival: <span id="time-to-arrival">Calculating...</span></p>
-            <p>Speed: <span id="current-speed">Calculating...</span></p>
-            <p>Next stoppage distance: <span id="next-stop-distance">Calculating...</span></p>
-        </div>
-    </div>
-    <!-- Add this in your HTML file, just before </body> -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required><br><br>
+
+        <input type="submit" value="Calculate">
+    </form> -->
+    <h1 class=" m-3 p-2 text-2xl">Route Distance & Time</h1>
+    <input class=" m-3 p-2" type="text" id="origin" placeholder="Your Place">
+    <input  class="m-3 p-2" type="text" id="destination" placeholder="Destination">
+    <button class="text-bold" id="calculate">Calculate Route</button>
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 7,
+                center: {lat: 41.85, lng: -87.65} // Default center coordinates
+            });
+
+            document.getElementById('calculate').addEventListener('click', function() {
+                var origin = document.getElementById('origin').value;
+                var destination = document.getElementById('destination').value;
+
+                fetch('/calculate_route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `origin=${origin}&destination=${destination}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.route) {
+                        var decodedPath = google.maps.geometry.encoding.decodePath(data.route);
+                        var route = new google.maps.Polyline({
+                            path: decodedPath,
+                            geodesic: true,
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2
+                        });
+                        route.setMap(map);
+                    }
+                    document.getElementById('distance').innerText = `Distance: ${data.distance}`;
+                    document.getElementById('duration').innerText = `Duration: ${data.duration}`;
+                });
+            });
+        }
+    </script>
+    <script>
+        // Initialize Leaflet map
+        var map = L.map('map').setView([27.7172, 85.3240], 13);
+        // Add the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+        // Initialize the FeatureGroup to store editable layers
+        var editableLayers = new L.FeatureGroup();
+        map.addLayer(editableLayers);
+        // Initialize the draw control and pass it the FeatureGroup of editable layers
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: editableLayers
+            }
+        });
+        map.addControl(drawControl);
+        // Initialize the draw control and pass it the FeatureGroup of editable layers
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: editableLayers
+            }
+        });
+        map.addControl(drawControl);
+        // Initialize variable to store the route
+        var route = null;
+        // Initialize variable to store the route
+        var route = null;
+   
     // Fetch real-time data from the server
     function fetchRealTimeData() {
         $.ajax({
