@@ -1,0 +1,28 @@
+#map {
+    height: 500px;
+}
+
+.ShowDisp{
+    margin-top: 1em;
+    font-size: 18px;
+    font-weight: bold;
+}
+#distance{
+    margin-top: 2em;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    color: rgb(32, 0, 128);
+}
+#duration{
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    color: rgb(9, 0, 128);
+}
+#speedDisplay{
+    font-size: 18px;
+    font-weight: bold;
+    font-style: italic;
+    color: rgb(128, 70, 0);
+}

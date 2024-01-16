@@ -90,29 +90,37 @@ destinationAutocomplete.addListener('place_changed', function () {
 });
 
 }
+
+//real time speed calculation and display
 function watchUserPosition() {
     navigator.geolocation.watchPosition(
       position => {
         const speed = position.coords.speed; // Speed in meters per second
+
         if (speed !== null && speed !== undefined) {
           const speedKmh = (speed * 3.6).toFixed(2); // Convert speed to kilometers per hour
+
           // Display current speed information
-          document.getElementById('speedDisplay').textContent = `Current Speed: ${speedKmh} km/h`;
+          document.getElementById('speedDisplay').textContent = `${speedKmh} km/h`;
+
         } else {
           // Display a message if speed information is not available
-          document.getElementById('speedDisplay').textContent = `Current Speed: 0 km/h`;
+          document.getElementById('speedDisplay').textContent = `0 km/h`;
         }
       },
+
       error => {
         console.error(error);
         // Display an error message if there is an issue with geolocation
         document.getElementById('speedDisplay').textContent = 'Error getting speed information.';
       },
+
       {
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 0,
       }
+
     );
   }
 
@@ -154,8 +162,8 @@ function calculateRoute(origin, destination, renderer, travelMode){
                 const distance = route.legs[0].distance.text;
                 const duration = route.legs[0].duration.text;
 
-                document.getElementById('distance').textContent = `Distance: ${distance}`;
-                document.getElementById('duration').textContent = `Duration (${travelMode}): ${duration}`;
+                document.getElementById('distance').textContent = `${distance}`;
+                document.getElementById('duration').textContent = `(${travelMode}): ${duration}`;
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
