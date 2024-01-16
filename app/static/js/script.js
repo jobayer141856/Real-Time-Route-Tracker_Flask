@@ -3,6 +3,7 @@ let map;
 let directionsService;
 let forwardRenderer;
 let backwardRenderer;
+let speedDisplay;
 
 
 function initMap() {
@@ -14,8 +15,8 @@ map = new google.maps.Map(document.getElementById('map'), {
   }, // Default center (Dhaka, Bangladesh)
   zoom: 13,
 });
-
-console.log(map);
+speedDisplay = document.getElementById('speedDisplay');
+watchUserPosition();
 directionsService = new google.maps.DirectionsService();
 //directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
 forwardRenderer = new google.maps.DirectionsRenderer({
@@ -89,6 +90,31 @@ destinationAutocomplete.addListener('place_changed', function () {
 });
 
 }
+function watchUserPosition() {
+    navigator.geolocation.watchPosition(
+      position => {
+        const speed = position.coords.speed; // Speed in meters per second
+        if (speed !== null && speed !== undefined) {
+          const speedKmh = (speed * 3.6).toFixed(2); // Convert speed to kilometers per hour
+          // Display current speed information
+          document.getElementById('speedDisplay').textContent = `Current Speed: ${speedKmh} km/h`;
+        } else {
+          // Display a message if speed information is not available
+          document.getElementById('speedDisplay').textContent = `Current Speed: 0 km/h`;
+        }
+      },
+      error => {
+        console.error(error);
+        // Display an error message if there is an issue with geolocation
+        document.getElementById('speedDisplay').textContent = 'Error getting speed information.';
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
+    );
+  }
 
 function calculateAndDisplayRoute() {
     const originInput = document.getElementById('originInput').value;

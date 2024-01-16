@@ -8,7 +8,7 @@ import pymongo
 
 
 db_client = pymongo.MongoClient("mongodb://localhost:27017")
-db = db_client["users_nav"]
+db = db_client["route_tracker"]
 
 
 app = Flask(__name__)

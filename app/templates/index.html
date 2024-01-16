@@ -10,6 +10,11 @@
         #map {
             height: 400px;
         }
+        #speedDisplay {
+            font-size: 16px;
+            font-weight: bold;
+            color: green;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -39,11 +44,11 @@
             <label class="block text-md font-bold text-gray-600">Route Options:</label>
             <div class="flex items-center">
                 <input type="radio" id="forwardRoute" name="routeOption" value="forward" checked>
-                <label for="forwardRoute" class="ml-2">Forward Route</label>
+                <label for="forwardRoute" class="ml-2">Forward Route(Colour will be blue)</label>
             </div>
             <div class="flex items-center">
                 <input type="radio" id="backwardRoute" name="routeOption" value="backward">
-                <label for="backwardRoute" class="ml-2">Backward Route</label>
+                <label for="backwardRoute" class="ml-2">Backward Route (Colour will be red)</label>
             </div>
             <div class="flex items-center">
                 <input type="radio" id="bothRoutes" name="routeOption" value="both">
@@ -54,11 +59,11 @@
             <button onclick="calculateAndDisplayRoute()" class="bg-purple-500 hover:bg-blue-500 m-5 text-white p-2 rounded-md">Get Route</button>
         </div>    
         <div id="map" class="mb-4"></div>
-        <p id="distance"></p>
-        <p id="duration"></p>
+        <p class="text-md font-bold" id="distance"></p>
+        <p class="text-md font-bold" id="duration"></p>
+        <p id="speedDisplay"></p>
     </div>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ map_api_key }}&libraries=places&callback=initMap" defer></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-   
 </body>
 </html>
