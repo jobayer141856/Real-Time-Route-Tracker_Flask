@@ -93,39 +93,42 @@ destinationAutocomplete.addListener('place_changed', function () {
     map.setCenter(place.geometry.location);
 });
 
-// forwardBusMarker = new google.maps.Marker({
-//     position: { lat: 0, lng: 0 },
-//     map: map,
-//     icon: {
-//         url: forwardBusIconUrl,  // URL of the forward bus icon image.
-//         scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
-//     }  // URL of the bus icon image.
-    
-// });
-
-// forwardBusMarker = new google.maps.Marker({
-//     position: { lat: 0, lng: 0 },
-//     map: map,
-//     icon: {
-//         url: backwardBusIconUrl,  // URL of the forward bus icon image.
-//         scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
-//     }  // URL of the bus icon image.
-    
-// });
+//its shows bus icon
 
 forwardBusMarker = new google.maps.Marker({
     position: { lat: 0, lng: 0 },
     map: map,
-    url: forwardBusIconUrl,  // URL of the backward bus icon image.
-    scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
+    icon: {
+        url: forwardBusIconUrl,  // URL of the forward bus icon image.
+        scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
+    }  // URL of the bus icon image.
+    
 });
 
 backwardBusMarker = new google.maps.Marker({
     position: { lat: 0, lng: 0 },
     map: map,
-    url: backwardBusIconUrl,  // URL of the backward bus icon image.
-    scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
+    icon: {
+        url: backwardBusIconUrl,  // URL of the forward bus icon image.
+        scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
+    }  // URL of the bus icon image.
+    
 });
+
+// its shows location icon
+// forwardBusMarker = new google.maps.Marker({
+//     position: { lat: 0, lng: 0 },
+//     map: map,
+//     url: forwardBusIconUrl,  // URL of the backward bus icon image.
+//     scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
+// });
+
+// backwardBusMarker = new google.maps.Marker({
+//     position: { lat: 0, lng: 0 },
+//     map: map,
+//     url: backwardBusIconUrl,  // URL of the backward bus icon image.
+//     scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
+// });
 
 
 }
@@ -229,19 +232,90 @@ function calculateRoute(origin, destination, renderer, travelMode, isForwardDire
                 
                 // Move the bus marker along the path.
                 let path = route.overview_path;
-                let pathIndex = 0;
-                let busMarker = isForwardDirection ? forwardBusMarker : backwardBusMarker;
-                busMarker.setPosition(path[pathIndex]);
-                let intervalId = setInterval(() => {
-                    pathIndex++;
-                    if (pathIndex < path.length) {
-                        busMarker.setPosition(path[pathIndex]);
+
+                //single bus movement
+
+                // let pathIndex = 0;
+                // let busMarker = isForwardDirection ? forwardBusMarker : backwardBusMarker;
+                // busMarker.setPosition(path[pathIndex]);
+                // let intervalId = setInterval(() => {
+                //     pathIndex++;
+                //     if (pathIndex < path.length) {
+                //         busMarker.setPosition(path[pathIndex]);
+                //     }
+                //     else {
+                //         // Clear the interval when the bus reaches the end of the path.
+                //         clearInterval(intervalId);
+                //     }
+                // }, 1000);
+
+                //for multiple bus movement
+                const busMarkers = [];
+                let busesArrived = 0;
+                for (let i = 0; i < 3; i++) {  // Create 3 bus markers.
+                    const busMarker = new google.maps.Marker({
+                        position: path[0],
+                        map: map,
+                        icon: {
+                            url: isForwardDirection ? forwardBusIconUrl : backwardBusIconUrl,
+                            scaledSize: new google.maps.Size(50, 50)
+                        }
+                    });
+                    busMarkers.push(busMarker);
+                }
+
+                // for (let i = 0; i < busMarkers.length; i++) {
+                //     const busMarker = busMarkers[i];
+                //     let index = 0;
+                //     setTimeout(function() {
+                //         setInterval(function() {
+                //             busMarker.setPosition(path[index]);
+                //             index = (index + 1) % path.length;
+                //         }, 1000 * (i + 1));  // Move each bus at a different speed.
+                //     }, 5000 * i);  // Start each bus at a different time.
+                // }
+
+                // Store the interval IDs.
+                let intervalIds = [];
+                // Clear the previous intervals.
+                for (let i = 0; i < intervalIds.length; i++) {
+                        clearInterval(intervalIds[i]);
                     }
-                    else {
-                        // Clear the interval when the bus reaches the end of the path.
-                        clearInterval(intervalId);
-                    }
-                }, 1000);
+
+                  // Reset the interval IDs array.
+                    intervalIds = [];  
+                 // multiple bus movement with stop
+                for (let i = 0; i < busMarkers.length; i++) {
+                    const busMarker = busMarkers[i];
+                    let index = 0;
+                    // setTimeout(function() {
+                        let intervalId = setInterval(function() {
+                            busMarker.setPosition(path[index]);
+                            index++;
+                            if (index >= path.length) {
+                                // Clear the interval when the bus reaches the end of the path.
+                                clearInterval(intervalId);
+                
+                                // Increment the number of buses that have arrived.
+                                busesArrived++;
+                                if (busesArrived === busMarkers.length) {
+                                    // Show a message when all buses have arrived.
+                                    alert('All buses have arrived at their destination.');
+                                    
+                                }
+                            }
+                        }, 1000 * (i + 1));  // Move each bus at a different speed.
+                        
+                        intervalIds.push(intervalId);
+
+                        if (isForwardDirection) {
+                            forwardIntervalId = intervalId;
+                        } else {
+                            backwardIntervalId = intervalId;
+                        }
+                    // }, 5000 * i);  // Start each bus at a different time.
+                }
+
                 if (isForwardDirection) {
                     forwardIntervalId = intervalId;
                 } else {
