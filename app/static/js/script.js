@@ -168,6 +168,7 @@ function watchUserPosition() {
     );
   }
 
+ let intervalIds = [];  
 function calculateAndDisplayRoute() {
     const originInput = document.getElementById('originInput').value;
     const destinationInput = document.getElementById('destinationInput').value;
@@ -213,6 +214,8 @@ function calculateAndDisplayRoute() {
     }
     
 }
+let busMarkers = [];
+
 function calculateRoute(origin, destination, renderer, travelMode, isForwardDirection){
     directionsService.route(
         {
@@ -249,8 +252,14 @@ function calculateRoute(origin, destination, renderer, travelMode, isForwardDire
                 //     }
                 // }, 1000);
 
+                
+               // Clear the old bus markers.
+               for (let i = 0; i < busMarkers.length; i++) {
+                busMarkers[i].setMap(null);
+                    }
+                busMarkers = [];
+
                 //for multiple bus movement
-                const busMarkers = [];
                 let busesArrived = 0;
                 for (let i = 0; i < 3; i++) {  // Create 3 bus markers.
                     const busMarker = new google.maps.Marker({
@@ -313,14 +322,9 @@ function calculateRoute(origin, destination, renderer, travelMode, isForwardDire
                         } else {
                             backwardIntervalId = intervalId;
                         }
-                    // }, 5000 * i);  // Start each bus at a different time.
                 }
 
-                if (isForwardDirection) {
-                    forwardIntervalId = intervalId;
-                } else {
-                    backwardIntervalId = intervalId;
-                }
+
             }
             
             else {
