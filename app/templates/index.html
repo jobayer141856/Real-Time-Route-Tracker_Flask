@@ -29,7 +29,7 @@
             <select id="travelModeSelect" class="mt-1 p-2 w-full border rounded-md">
                 <option value="DRIVING"><i class="fas fa-car"></i> Driving</option>
                 <option value="WALKING"><i class="fas fa-walking"></i> Walking</option>
-                <option value="TRANSIT"><i class="fas fa-bus"></i> Bus/Train</option>
+                <option value="TRANSIT"><i class="fas fa-bus"></i>Bus</option>
                 <!-- <option value="CYCLING"><i class="fas fa-bus"></i> Bike</option> -->
             </select>
         </div>
@@ -52,11 +52,17 @@
             <button onclick="calculateAndDisplayRoute()" class="bg-purple-500 hover:bg-blue-500 m-5 text-white p-2 rounded-md">Get Route</button>
         </div>    
         <div id="map" class="mb-4"></div>
+        
         <p class="ShowDisp">Distance Calculation: <span id="distance"> </span>  </p>
         <p class="ShowDisp"> Duration Calculation by Travel Mode <span id="duration"></span></p>
         <p class="ShowDisp"> Current Speed Calculation: <span id="speedDisplay"></span> </p>
     </div>
+    <script type="text/javascript">
+        var forwardBusIconUrl = "{{ url_for('static', filename='images/Blue_bus.jpg') }}";
+        var backwardBusIconUrl = "{{ url_for('static', filename='images/Red_Bus.jpg') }}";
+    </script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ map_api_key }}&libraries=places&callback=initMap" defer></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
 </body>
 </html>

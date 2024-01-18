@@ -4,6 +4,8 @@ let directionsService;
 let forwardRenderer;
 let backwardRenderer;
 let speedDisplay;
+let forwardBusMarker;
+let backwardBusMarker;
 
 
 function initMap() {
@@ -18,7 +20,7 @@ map = new google.maps.Map(document.getElementById('map'), {
 speedDisplay = document.getElementById('speedDisplay');
 watchUserPosition();
 directionsService = new google.maps.DirectionsService();
-//directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
 forwardRenderer = new google.maps.DirectionsRenderer({
   map: map,
   polylineOptions: {
@@ -32,7 +34,7 @@ backwardRenderer = new google.maps.DirectionsRenderer({
   }
 });
 
-// Set the origin location to the user's current location by default
+
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
       position => {
@@ -62,14 +64,14 @@ if (navigator.geolocation) {
         }
   );
 }
-// Add Autocomplete for Origin and Destination inputs
+
 const originAutocomplete = new google.maps.places.Autocomplete(document.getElementById('originInput'));
 originAutocomplete.bindTo('bounds', map);
 
 const destinationAutocomplete = new google.maps.places.Autocomplete(document.getElementById('destinationInput'));
 destinationAutocomplete.bindTo('bounds', map);
 
-// Event listener for when a place is selected from autocomplete for the origin field
+
 originAutocomplete.addListener('place_changed', function () {
     const place = originAutocomplete.getPlace();
     if (!place.geometry) {
@@ -79,7 +81,7 @@ originAutocomplete.addListener('place_changed', function () {
     map.setCenter(place.geometry.location);
 });
 
-// Event listener for when a place is selected from autocomplete for the destination field
+
 destinationAutocomplete.addListener('place_changed', function () {
     const place = destinationAutocomplete.getPlace();
     if (!place.geometry) {
@@ -89,29 +91,48 @@ destinationAutocomplete.addListener('place_changed', function () {
     map.setCenter(place.geometry.location);
 });
 
+forwardBusMarker = new google.maps.Marker({
+    position: { lat: 0, lng: 0 },
+    map: map,
+    icon: {
+        url: forwardBusIconUrl,  // URL of the forward bus icon image.
+        scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
+    }  // URL of the bus icon image.
+    
+});
+
+backwardBusMarker = new google.maps.Marker({
+    position: { lat: 0, lng: 0 },
+    map: map,
+    url: backwardBusIconUrl,  // URL of the backward bus icon image.
+    scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
+});
+
 }
 
 //real time speed calculation and display
 function watchUserPosition() {
     navigator.geolocation.watchPosition(
       position => {
-        const speed = position.coords.speed; // Speed in meters per second
+        // Speed in meters per second
+        const speed = position.coords.speed; 
 
         if (speed !== null && speed !== undefined) {
-          const speedKmh = (speed * 3.6).toFixed(2); // Convert speed to kilometers per hour
+            
+          const speedKmh = (speed * 3.6).toFixed(2); //34.7685656865 km/h 
 
-          // Display current speed information
+          
           document.getElementById('speedDisplay').textContent = `${speedKmh} km/h`;
 
         } else {
-          // Display a message if speed information is not available
+          
           document.getElementById('speedDisplay').textContent = `0 km/h`;
         }
       },
 
       error => {
         console.error(error);
-        // Display an error message if there is an issue with geolocation
+       
         document.getElementById('speedDisplay').textContent = 'Error getting speed information.';
       },
 
@@ -129,17 +150,28 @@ function calculateAndDisplayRoute() {
     const destinationInput = document.getElementById('destinationInput').value;
     const travelMode = document.getElementById('travelModeSelect').value;
     const routeOption = document.querySelector('input[name="routeOption"]:checked').value;
+
     // Clear both routes
     forwardRenderer.setDirections({ routes: [] });
     backwardRenderer.setDirections({ routes: [] });
 
+    // Stop the bus markers.
+    if (forwardIntervalId) {
+        clearInterval(forwardIntervalId);
+        forwardIntervalId = null;
+    }
+    if (backwardIntervalId) {
+        clearInterval(backwardIntervalId);
+        backwardIntervalId = null;
+    }
+    
     if (routeOption === 'forward') {
         calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode);
     } else if (routeOption === 'backward') {
         calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode);
     } else if (routeOption === 'both') {
-        calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode);
-        calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode);
+        calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode, true);
+        calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode, false);
     }
 
     if (!destinationInput) {
@@ -148,7 +180,7 @@ function calculateAndDisplayRoute() {
     }
     
 }
-function calculateRoute(origin, destination, renderer, travelMode){
+function calculateRoute(origin, destination, renderer, travelMode, isForwardDirection){
     directionsService.route(
         {
             origin: origin,
@@ -164,7 +196,25 @@ function calculateRoute(origin, destination, renderer, travelMode){
 
                 document.getElementById('distance').textContent = `${distance}`;
                 document.getElementById('duration').textContent = `(${travelMode}): ${duration}`;
-            } else {
+                
+                // Move the bus marker along the path.
+                let path = route.overview_path;
+                let pathIndex = 0;
+                let busMarker = isForwardDirection ? forwardBusMarker : backwardBusMarker;
+                busMarker.setPosition(path[pathIndex]);
+                let intervalId = setInterval(() => {
+                    pathIndex++;
+                    if (pathIndex < path.length) {
+                        busMarker.setPosition(path[pathIndex]);
+                    }
+                    else {
+                        // Clear the interval when the bus reaches the end of the path.
+                        clearInterval(intervalId);
+                    }
+                }, 1000);
+            }
+            
+            else {
                 window.alert('Directions request failed due to ' + status);
             }
         }
