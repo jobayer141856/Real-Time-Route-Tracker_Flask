@@ -6,6 +6,8 @@ let backwardRenderer;
 let speedDisplay;
 let forwardBusMarker;
 let backwardBusMarker;
+let forwardIntervalId ;
+let backwardIntervalId ;
 
 
 function initMap() {
@@ -164,14 +166,24 @@ function calculateAndDisplayRoute() {
         clearInterval(backwardIntervalId);
         backwardIntervalId = null;
     }
-    
+
+    forwardBusMarker.setVisible(false);
+    backwardBusMarker.setVisible(false);
+
     if (routeOption === 'forward') {
-        calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode);
+        forwardBusMarker.setVisible(true);
+        calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode, true);
+        
     } else if (routeOption === 'backward') {
-        calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode);
+        backwardBusMarker.setVisible(true);
+        calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode, false);
+       
     } else if (routeOption === 'both') {
+        forwardBusMarker.setVisible(true);
+        backwardBusMarker.setVisible(true);
         calculateRoute(originInput || undefined, destinationInput, forwardRenderer, travelMode, true);
         calculateRoute(destinationInput, originInput || undefined, backwardRenderer, travelMode, false);
+
     }
 
     if (!destinationInput) {
@@ -212,6 +224,11 @@ function calculateRoute(origin, destination, renderer, travelMode, isForwardDire
                         clearInterval(intervalId);
                     }
                 }, 1000);
+                if (isForwardDirection) {
+                    forwardIntervalId = intervalId;
+                } else {
+                    backwardIntervalId = intervalId;
+                }
             }
             
             else {
