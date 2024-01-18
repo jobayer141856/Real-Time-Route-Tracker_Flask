@@ -93,14 +93,31 @@ destinationAutocomplete.addListener('place_changed', function () {
     map.setCenter(place.geometry.location);
 });
 
+// forwardBusMarker = new google.maps.Marker({
+//     position: { lat: 0, lng: 0 },
+//     map: map,
+//     icon: {
+//         url: forwardBusIconUrl,  // URL of the forward bus icon image.
+//         scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
+//     }  // URL of the bus icon image.
+    
+// });
+
+// forwardBusMarker = new google.maps.Marker({
+//     position: { lat: 0, lng: 0 },
+//     map: map,
+//     icon: {
+//         url: backwardBusIconUrl,  // URL of the forward bus icon image.
+//         scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
+//     }  // URL of the bus icon image.
+    
+// });
+
 forwardBusMarker = new google.maps.Marker({
     position: { lat: 0, lng: 0 },
     map: map,
-    icon: {
-        url: forwardBusIconUrl,  // URL of the forward bus icon image.
-        scaledSize: new google.maps.Size(100, 100)  // Sets the size of the icon.
-    }  // URL of the bus icon image.
-    
+    url: forwardBusIconUrl,  // URL of the backward bus icon image.
+    scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
 });
 
 backwardBusMarker = new google.maps.Marker({
@@ -109,6 +126,7 @@ backwardBusMarker = new google.maps.Marker({
     url: backwardBusIconUrl,  // URL of the backward bus icon image.
     scaledSize: new google.maps.Size(50, 50)  // Sets the size of the icon.
 });
+
 
 }
 
